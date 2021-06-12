@@ -978,8 +978,8 @@ public class NNManager { // implements NNManagerInterface {
 //	public void trainMultipleRuns(int learningApproach, int epoch, OutputEvaluator outputEvaluator, 
 //			ErrorCalculator errorCalculator, DataConverter dataConverter, String prefix) {
 //	}
-	
-	
+
+
 	/**
 	 * Trains the network (using relative training), using the settings as stored in the map.
 	 * 
@@ -990,30 +990,30 @@ public class NNManager { // implements NNManagerInterface {
 	 */
 	public double[] trainNetworkRelative(Map<String, Double> map, boolean fixFlatSpot, 
 		List<RelativeTrainingExample> argRelativeTrainingExamples) {
-  	double cyclesAsDouble = map.get(CYCLES);
-  	int cycles = (int) cyclesAsDouble;
+		double cyclesAsDouble = map.get(CYCLES);
+		int cycles = (int) cyclesAsDouble;
 		double alpha = map.get(LEARNING_RATE);
-  	double lambda = map.get(REGULARISATION_PARAMETER);
-  	double epsilon = map.get(MARGIN);
-  	
-  	System.out.println("============Start training============");
+		double lambda = map.get(REGULARISATION_PARAMETER);
+		double epsilon = map.get(MARGIN);
+
+		System.out.println("============Start training============");
 		System.out.println("Starting the relative training with " + argRelativeTrainingExamples.size() + " pairs of training examples " + 
 			"for max " + cycles + " cycles.");
 
 		double finalError = -1;
 		double firstError = -1;
-		
+
 		BasicMLDataSet trainingSet = new BasicMLDataSet();
-    // This MLDataPair is necessary because the trainingSet cannot be empty when creating a BackPropagation object 
+		// This MLDataPair is necessary because the trainingSet cannot be empty when creating a BackPropagation object 
 		MLDataPair dataPair = BasicMLDataPair.createPair(argRelativeTrainingExamples.get(0).getBetterVal().size(), 1);
 		trainingSet.add(dataPair);
 		// Backpropagation train = new Backpropagation(network, trainingSet);
-	  // train.setLearningRate(alpha);	
+		// train.setLearningRate(alpha);	
 		ResilientPropagation train = new ResilientPropagation(network, trainingSet);
 		train.setRPROPType(RPROPType.iRPROPp); // was classic RPROP before 10-2-15
 		train.fixFlatSpot(fixFlatSpot); 
 		train.setThreadCount(1);
-		
+
 		double[] error = new double[4];
 		int numOfNotSatisfiedTrainingExamples = 0;
 		double firstRelClassError = -1;
@@ -1021,8 +1021,8 @@ public class NNManager { // implements NNManagerInterface {
 		for (int i = 0; i < cycles; i++) {
 			List<MLDataPair > trainData = new ArrayList<MLDataPair>();
 			numOfNotSatisfiedTrainingExamples = 0;		
-			
-		  // For each rte: check whether it satisfies the condition (the ground truth feature vector should get a 
+
+			// For each rte: check whether it satisfies the condition (the ground truth feature vector should get a 
 			// higher network output than the other feature vector). If not: create MLDataPairs from them and add 
 			// them to the training data
 			for (RelativeTrainingExample rte : argRelativeTrainingExamples) {
@@ -1034,103 +1034,103 @@ public class NNManager { // implements NNManagerInterface {
 				double[] outputGroundTruthFeatureVector = evalNetwork(groundTruthFeatureVector);
 //				double[] outputOtherFeatureVector = evalNetwork(rte.getWorseVal()); // was "outputWorse"
 				double[] outputOtherFeatureVector = evalNetwork(otherFeatureVector); // was "outputWorse"
-				
+
 				// Check whether outputGTFV is higher
 				switch (COMPARATOR) {
-				  // a. Sigmoid  
-				  case SGM:
-					  double compOut =
-					    1 / (1 + Math.exp(gamma * (outputOtherFeatureVector[0] - outputGroundTruthFeatureVector[0])));
-					  // then switch the output values for the training
-					  double compDeriv = compOut * (1 - compOut);
-				
-					  if (compOut > 0.45) {
-						  numOfNotSatisfiedTrainingExamples++;
-						  MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
-						  MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
-						  double[] inputsBetter = new double[groundTruthFeatureVector.size()];
-						  double[] inputsWorse = new double[otherFeatureVector.size()];
-						  // Convert the List<Double> into double[] while switching
-						  for (int j = 0; j < groundTruthFeatureVector.size(); j++) {
-							  inputsBetter[j] = groundTruthFeatureVector.get(j);
-							  inputsWorse[j] = otherFeatureVector.get(j);
-						  }
-						  // double outpAvg = (outputBetter[0] + outputWorse[0])/2;
-						  // Fill better training example
-						  better.setInputArray(inputsBetter);
-						  double[] btarg = new double[] { outputGroundTruthFeatureVector[0] + (compOut * compDeriv * gamma) };
-						  better.setIdealArray(btarg);
-						  trainData.add(better);
-						  // Fill worse training example
-						  worse.setInputArray(inputsWorse);
-						  double[] wtarg = new double[] { outputOtherFeatureVector[0] - (compOut * compDeriv * gamma) };
-						  worse.setIdealArray(wtarg);
-						  trainData.add(worse);
-					  }
-					  break;
-				  // b. Average  
-				  case AVG:
-				    if (outputOtherFeatureVector[0] > outputGroundTruthFeatureVector[0] - epsilon) {
-					    // Switch the output values for the training
-					    MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
-					    MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
-					    double[] inputsBetter = new double[groundTruthFeatureVector.size()];
-					    double[] inputsWorse = new double[otherFeatureVector.size()];
-					    // Convert the List<Double> into double[] while switching
-					    for (int j = 0; j < groundTruthFeatureVector.size(); j++)	{
-				  		  inputsBetter[j] = groundTruthFeatureVector.get(j);
-			  			  inputsWorse[j] = otherFeatureVector.get(j);
-		  		  	}
-		  			  double outpAvg = (outputGroundTruthFeatureVector[0] + outputOtherFeatureVector[0]) / 2;
-						  outputOtherFeatureVector[0] = outpAvg + epsilon;
-						  outputGroundTruthFeatureVector[0] = outpAvg - epsilon;
-						  // Construction of the MLDataPairs; switching happens here:
-						  better.setInputArray(inputsBetter);
-						  better.setIdealArray(outputOtherFeatureVector);
-						  worse.setInputArray(inputsWorse);
-						  worse.setIdealArray(outputGroundTruthFeatureVector);
-						  trainData.add(better);
-						  trainData.add(worse);
-						  numOfNotSatisfiedTrainingExamples++;
-					  }
-					  break;
+					// a. Sigmoid  
+					case SGM:
+						double compOut = 
+							1 / (1 + Math.exp(gamma * (outputOtherFeatureVector[0] - outputGroundTruthFeatureVector[0])));
+						// Then switch the output values for the training
+						double compDeriv = compOut * (1 - compOut);
+
+						if (compOut > 0.45) {
+							numOfNotSatisfiedTrainingExamples++;
+							MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
+							MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
+							double[] inputsBetter = new double[groundTruthFeatureVector.size()];
+							double[] inputsWorse = new double[otherFeatureVector.size()];
+							// Convert the List<Double> into double[] while switching
+							for (int j = 0; j < groundTruthFeatureVector.size(); j++) {
+								inputsBetter[j] = groundTruthFeatureVector.get(j);
+								inputsWorse[j] = otherFeatureVector.get(j);
+							}
+							// double outpAvg = (outputBetter[0] + outputWorse[0])/2;
+							// Fill better training example
+							better.setInputArray(inputsBetter);
+							double[] btarg = new double[] { outputGroundTruthFeatureVector[0] + (compOut * compDeriv * gamma) };
+							better.setIdealArray(btarg);
+							trainData.add(better);
+							// Fill worse training example
+							worse.setInputArray(inputsWorse);
+							double[] wtarg = new double[] { outputOtherFeatureVector[0] - (compOut * compDeriv * gamma) };
+							worse.setIdealArray(wtarg);
+							trainData.add(worse);
+						}
+						break;
+					// b. Average  
+					case AVG:
+						if (outputOtherFeatureVector[0] > outputGroundTruthFeatureVector[0] - epsilon) {
+							// Switch the output values for the training
+							MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
+							MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
+							double[] inputsBetter = new double[groundTruthFeatureVector.size()];
+							double[] inputsWorse = new double[otherFeatureVector.size()];
+							// Convert the List<Double> into double[] while switching
+							for (int j = 0; j < groundTruthFeatureVector.size(); j++) {
+								inputsBetter[j] = groundTruthFeatureVector.get(j);
+								inputsWorse[j] = otherFeatureVector.get(j);
+							}
+							double outpAvg = (outputGroundTruthFeatureVector[0] + outputOtherFeatureVector[0]) / 2;
+							outputOtherFeatureVector[0] = outpAvg + epsilon;
+							outputGroundTruthFeatureVector[0] = outpAvg - epsilon;
+							// Construction of the MLDataPairs; switching happens here:
+							better.setInputArray(inputsBetter);
+							better.setIdealArray(outputOtherFeatureVector);
+							worse.setInputArray(inputsWorse);
+							worse.setIdealArray(outputGroundTruthFeatureVector);
+							trainData.add(better);
+							trainData.add(worse);
+							numOfNotSatisfiedTrainingExamples++;
+						}
+						break;
 					// c. Semilinear
-				  case SLN:
-				    // If outputGTFV is not higher than outputOFV by at least the given margin epsilon (i.e., if it is not
-				  	// at least epsilon higher than outputOFV): rte does not satisfy condition; further training necessary
-					  if (outputOtherFeatureVector[0] > outputGroundTruthFeatureVector[0] - epsilon) {
-					    numOfNotSatisfiedTrainingExamples++;		
-						  // Make BasicMLDataPairs better and worse, which will contain an input that is a feature vector and
-					  	// an output that is a rating (a network output) 
-					  	// a. Create empty pairs 
-					  	MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
-						  MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
-						  // b. Create inputs: the GTFV and the OFV, respectively, both as a double[] 
-						  double[] inputsBetter = new double[groundTruthFeatureVector.size()];
-						  double[] inputsWorse = new double[otherFeatureVector.size()];
-						  for (int j = 0; j < groundTruthFeatureVector.size(); j++) {
-							  inputsBetter[j] = groundTruthFeatureVector.get(j);
-							  inputsWorse[j] = otherFeatureVector.get(j);
-						  }
-					    
-						  // c. Modify outputs
-						  outputOtherFeatureVector[0] += epsilon;
-					    outputGroundTruthFeatureVector[0] -= epsilon;
-					    // d. Fill the BasicMLDataPairs, thereby switching the current network outputs. Because we want the 
-					    // ground truth feature vector to result in a higher network output than the other feature vector, we
-					    // give the MLDataPair better the higher output (i.e., the one the network currently gives for the 
-					    // other feature vector), and the MLDataPair worse the lower output (i.e., the one the network 
-					    // currently gives for the ground truth feature vector)
-					    better.setInputArray(inputsBetter);
-					    better.setIdealArray(outputOtherFeatureVector);
-					    worse.setInputArray(inputsWorse);
-					    worse.setIdealArray(outputGroundTruthFeatureVector);
-					    // Add the MLDataPairs to the training data
-					    trainData.add(better);
-					    trainData.add(worse);
-				    }
-					  // TODO added 17-11
-//					  else {
+					case SLN:
+						// If outputGTFV is not higher than outputOFV by at least the given margin epsilon (i.e., if it is not
+						// at least epsilon higher than outputOFV): rte does not satisfy condition; further training necessary
+						if (outputOtherFeatureVector[0] > outputGroundTruthFeatureVector[0] - epsilon) {
+							numOfNotSatisfiedTrainingExamples++;		
+							// Make BasicMLDataPairs better and worse, which will contain an input that is a feature vector and
+							// an output that is a rating (a network output) 
+							// a. Create empty pairs 
+							MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
+							MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
+							// b. Create inputs: the GTFV and the OFV, respectively, both as a double[] 
+							double[] inputsBetter = new double[groundTruthFeatureVector.size()];
+							double[] inputsWorse = new double[otherFeatureVector.size()];
+							for (int j = 0; j < groundTruthFeatureVector.size(); j++) {
+								inputsBetter[j] = groundTruthFeatureVector.get(j);
+								inputsWorse[j] = otherFeatureVector.get(j);
+							}
+
+							// c. Modify outputs
+							outputOtherFeatureVector[0] += epsilon;
+							outputGroundTruthFeatureVector[0] -= epsilon;
+							// d. Fill the BasicMLDataPairs, thereby switching the current network outputs. Because we want the 
+							// ground truth feature vector to result in a higher network output than the other feature vector, we
+							// give the MLDataPair better the higher output (i.e., the one the network currently gives for the 
+							// other feature vector), and the MLDataPair worse the lower output (i.e., the one the network 
+							// currently gives for the ground truth feature vector)
+							better.setInputArray(inputsBetter);
+							better.setIdealArray(outputOtherFeatureVector);
+							worse.setInputArray(inputsWorse);
+							worse.setIdealArray(outputGroundTruthFeatureVector);
+							// Add the MLDataPairs to the training data
+							trainData.add(better);
+							trainData.add(worse);
+						}
+						// TODO added 17-11
+//						else {
 //					  	// a. Create empty pairs 
 //					  	MLDataPair better = BasicMLDataPair.createPair(groundTruthFeatureVector.size(), 1);
 //						  MLDataPair worse = BasicMLDataPair.createPair(otherFeatureVector.size(), 1);
@@ -1151,7 +1151,7 @@ public class NNManager { // implements NNManagerInterface {
 //					    trainData.add(better);
 //					    trainData.add(worse);
 //					  }
-			  }
+				}
 			}	// All relativeTrainingExamples dealt with 
 			if (DEBUG) {
 				System.out.println("Rel Class Errs after " + (i + 1) + " cycles: " + numOfNotSatisfiedTrainingExamples);
@@ -1175,20 +1175,20 @@ public class NNManager { // implements NNManagerInterface {
 			// Regularise
 			regularise(alpha * lambda );
 			if (DEBUG) {
-			System.out.println("Error after " + (i + 1) + " cycles = " + train.getError());
+				System.out.println("Error after " + (i + 1) + " cycles = " + train.getError());
 //			// when doing last cycle
 //			if (i == cycles - 1) {
 //				finalError = train.getError();
 //				storeWeights(bestWeightsFile);
 //			}
 			}
-		}	// end cycles loop
+		} // end cycles loop
 		finalError = train.getError();
 		double finalRelClassError = numOfNotSatisfiedTrainingExamples;
 		if (DEBUG) {
-		  System.out.println("============End training============ \n");
-		  System.out.println("Error before training = " + firstError + " \n");
-		  System.out.println("Error after training = " + finalError);
+			System.out.println("============End training============ \n");
+			System.out.println("Error before training = " + firstError + " \n");
+			System.out.println("Error after training = " + finalError);
 		}
 		error[0] = firstError;
 		error[1] = finalError;
