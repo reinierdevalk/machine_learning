@@ -1,6 +1,7 @@
 package machineLearning;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,10 @@ public class NNManager { // implements NNManagerInterface {
 //	public static final int NOTE_CLASS = 0;
 //	public static final int CHORD_REGRESS = 1;
 	
-	public static ActivationFunction[] ALL_ACT_FUNCT = new ActivationFunction[10]; 
+	public static ActivationFunction[] ALL_ACT_FUNCT = new ActivationFunction[ActivationFunction.values().length];
+	static {
+		Arrays.asList(ActivationFunction.values()).forEach(af -> ALL_ACT_FUNCT[af.getIntRep()] = af);
+	}
 	public static enum ActivationFunction {
 		SIGMOID("sgm", 0), SOFTMAX("sft", 1), RELU("ReLU", 2);
 		
@@ -72,7 +76,7 @@ public class NNManager { // implements NNManagerInterface {
 		ActivationFunction(String s, int i) {
 			this.stringRep = s;
 			this.intRep = i;
-			ALL_ACT_FUNCT[i] = this;
+//			ALL_ACT_FUNCT[i] = this;
 		}
 		
 		@Override
