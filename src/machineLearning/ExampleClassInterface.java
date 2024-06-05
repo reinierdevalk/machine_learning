@@ -1,8 +1,8 @@
-package machineLearning;
+package machinelearning;
 
 /**
  * Example interface to demonstrate the use of an interface.
- * See voice_separation-main.src.machineLearning.ExampleClass.java
+ * See voice_separation-main.src.machinelearning.ExampleClass.java
  * 
  * @author Reinier
  *

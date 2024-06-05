@@ -1,4 +1,4 @@
-package machineLearning;
+package machinelearning;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package machineLearning;
+package machinelearning;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
-import machineLearning.NNManager.ActivationFunction;
+import machinelearning.NNManager;
+import machinelearning.NNManager.ActivationFunction;
 
 import org.encog.ml.data.basic.BasicMLDataSet;
 

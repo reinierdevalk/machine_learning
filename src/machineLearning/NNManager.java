@@ -1,4 +1,4 @@
-package machineLearning;
+package machinelearning;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1223,7 +1223,7 @@ public class NNManager { // implements NNManagerInterface {
 	}
 
 
-	ArrayList<double[]> createAllNetworkOutputs(List<List<Double>> argNoteFeatures) {
+	public ArrayList<double[]> createAllNetworkOutputs(List<List<Double>> argNoteFeatures) {
 		ArrayList<double[]> allNetwOutp = new ArrayList<double[]>();
 		for (int i = 0; i < argNoteFeatures.size(); i++) {
 			double[] predictedLabel = evalNetwork(argNoteFeatures.get(i));
@@ -1577,7 +1577,7 @@ public class NNManager { // implements NNManagerInterface {
      * 
      * @return
      */
-	// TODO test
+	public // TODO test
 	List<Double> getNetworkWeights() {
 		List<Double> weights = new ArrayList<Double>(); 
 		for (int fromLayer = 0; fromLayer < network.getLayerCount() - 1; fromLayer++) {
