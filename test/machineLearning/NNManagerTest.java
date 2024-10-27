@@ -1,26 +1,31 @@
 package machinelearning;
 
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
 import machinelearning.NNManager;
 import machinelearning.NNManager.ActivationFunction;
 
 import org.encog.ml.data.basic.BasicMLDataSet;
 
-public class NNManagerTest extends TestCase {
+public class NNManagerTest {
   
 	private List <Double> summedOutputs;
 	
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 	}
 	
 //	public void testCreateTrainingExamples() {
@@ -40,6 +45,7 @@ public class NNManagerTest extends TestCase {
 //	}
 
 
+	@Test
 	public void testNetwork() {	
 		List<Double> features = Arrays.asList(new Double[]{0.4, -0.1, 0.3, 0.2, 0.5});
 		int in = features.size();
