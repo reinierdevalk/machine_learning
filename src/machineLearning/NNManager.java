@@ -91,6 +91,17 @@ public class NNManager { // implements NNManagerInterface {
 		public int getIntRep() {
 			return intRep;
 		}
+		
+		public static ActivationFunction getActivationFunction(String s) {
+			if (s != null) {
+				for (ActivationFunction a : ActivationFunction.values()) { 
+					if (a.getStringRep().equals(s)) {
+						return a;
+					}
+				}
+			}
+			return null;
+		}
 	};
 	
 //	private static final int TOLERANT = 0;
