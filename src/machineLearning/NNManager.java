@@ -2230,11 +2230,6 @@ public class NNManager { // implements NNManagerInterface {
 //		List<String> argTrainingSetPieceNames, String path, boolean isTraining) {
 //		String trainingSettings = ""; 
 //		
-////		for (Map.Entry<String, Double> entry : modelParameters.entrySet()) {
-////			System.out.println(entry.getKey() + " = " + entry.getValue());
-////		}
-////		System.exit(0);
-//		
 ////		int numberOfRuns = argTrainingInfoMap.get(NUMBER_OF_RUNS).intValue();
 //		int learningApproach = modelParameters.get(LEARNING_APPROACH).intValue(); 
 //	  
